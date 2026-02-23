@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaria - Gestão Total</title>
+    <style>
+        :root {
+            --primary-red: #e74c3c;
+            --secondary-green: #27ae60;
+            --dark-blue: #2c3e50;
+            --bg-gray: #f4f7f6;
+            --accent-yellow: #f1c40f;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-gray); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        .container, .history-container { 
+            background: white; width: 100%; max-width: 450px; padding: 25px; 
+            border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            margin-bottom: 20px; box-sizing: border-box; 
+        }
+
+        h2, h3 { text-align: center; color: var(--dark-blue); margin-top: 0; }
+
+        /* Painel Realtime */
+        .total-painel { 
+            background: var(--dark-blue); color: white; border-radius: 15px; 
+            padding: 15px; text-align: center; margin-bottom: 20px; 
+            border-bottom: 4px solid var(--accent-yellow); 
+        }
+        .total-painel div { font-size: 2.2rem; font-weight: 900; color: var(--accent-yellow); }
+
+        /* Formulário de Adição */
+        .add-section { display: flex; gap: 8px; margin-bottom: 20px; }
+        .add-section input { flex: 1; padding: 10px; border: 2px solid #eee; border-radius: 8px; outline: none; }
+        
+        /* Lista de Entregadores */
+        .delivery-card { 
+            background: #fff; padding: 12px; border-radius: 12px; 
+            margin-bottom: 10px; display: flex; justify-content: space-between; 
+            align-items: center; border: 1px solid #eee; 
+        }
+        .info h4 { margin: 0; color: var(--dark-blue); font-size: 1rem; }
+        .btn-delete-user { background: none; border: none; color: #bbb; cursor: pointer; font-size: 0.75rem; padding: 0; margin-top: 4px; text-decoration: underline; }
+        .btn-delete-user:hover { color: var(--primary-red); }
+
+        /* Botões */
+        .btn { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        .btn-add { background: var(--dark-blue); padding: 0 15px; }
+        .btn-circle { width: 30px; height: 30px; border-radius: 50%; font-size: 1.2rem; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-finish { background: var(--secondary-green); width: 100%; padding: 15px; margin-top: 10px; font-size: 1rem; }
+
+        /* Histórico */
+        .history-item { 
+            background: #f9f9f9; padding: 12px; border-radius: 10px; margin-bottom: 8px; 
+            border-left: 5px solid var(--dark-blue); cursor: pointer; transition: 0.2s;
+        }
+        .history-item:hover { background: #f0f0f0; }
+        .history-header { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold; }
+        .history-details { 
+            margin-top: 10px; padding-top: 8px; border-top: 1px solid #ddd; 
+            font-size: 0.85rem; color: #555; display: none; 
+        }
+        .history-item.active .history-details { display: block; }
+        .detail-line { display: flex; justify-content: space-between; margin-bottom: 3px; border-bottom: 1px solid #eee; }
+        
+        .btn-clear-all { background: none; border: none; color: #999; width: 100%; cursor: pointer; font-size: 0.7rem; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🍕 Controle de Entregas</h2>
+    
+    <div class="total-painel">
+        <small>Total Acumulado (Hoje)</small>
+        <div id="display-realtime">0</div>
+    </div>
+
+    <div class="add-section">
+        <input type="text" id="novo-nome" placeholder="Nome do novo entregador...">
+        <button class="btn btn-add" onclick="adicionarEntregador()">Adicionar</button>
+    </div>
+
+    <div id="lista-entregadores"></div>
+    
+    <button class="btn btn-finish" onclick="encerrarDia()">✅ Encerrar Dia e Salvar Relatório</button>
+</div>
+
+<div class="history-container">
+    <h3>📊 Histórico de Fechamentos</h3>
+    <div id="lista-historico"></div>
+    <button class="btn-clear-all" onclick="limparHistorico()">Limpar todo o histórico</button>
+</div>
+
+<script>
+    // Inicialização de dados
+    let entregadores = JSON.parse(localStorage.getItem('pizzaria_entregadores')) || [];
+    let historico = JSON.parse(localStorage.getItem('pizzaria_historico')) || [];
+
+    function salvar() {
+        localStorage.setItem('pizzaria_entregadores', JSON.stringify(entregadores));
+        localStorage.setItem('pizzaria_historico', JSON.stringify(historico));
+    }
+
+    function renderizar() {
+        const container = document.getElementById('lista-entregadores');
+        const histContainer = document.getElementById('lista-historico');
+        let totalGeral = 0;
+
+        // Renderizar Lista Ativa
+        container.innerHTML = entregadores.length === 0 ? '<p style="text-align:center; color:#999;">Nenhum entregador na lista.</p>' : '';
+        entregadores.forEach(e => {
+            totalGeral += e.entregas;
+            const div = document.createElement('div');
+            div.className = 'delivery-card';
+            div.innerHTML = `
+                <div class="info">
+                    <h4>${e.nome}</h4>
+                    <button class="btn-delete-user" onclick="removerEntregador(${e.id})">Excluir entregador</button>
+                </div>
+                <div style="text-align:center">
+                    <div style="font-weight:bold; font-size:1.2rem; color:var(--dark-blue)">${e.entregas}</div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn btn-circle" style="background:var(--primary-red)" onclick="ajustar(${e.id}, -1)">-</button>
+                        <button class="btn btn-circle" style="background:var(--secondary-green)" onclick="ajustar(${e.id}, 1)">+</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+        document.getElementById('display-realtime').innerText = totalGeral;
+
+        // Renderizar Histórico Detalhado
+        histContainer.innerHTML = historico.length === 0 ? '<p style="text-align:center; color:#999;">Nenhum fechamento salvo.</p>' : '';
+        historico.slice().reverse().forEach(dia => {
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.onclick = () => item.classList.toggle('active');
+            
+            let detalhesHtml = dia.detalhes.map(d => `
+                <div class="detail-line">
+                    <span>${d.nome}</span>
+                    <span><strong>${d.qtd}</strong></span>
+                </div>
+            `).join('');
+
+            item.innerHTML = `
+                <div class="history-header">
+                    <span>📅 ${dia.data}</span>
+                    <span style="color:var(--secondary-green)">Total: ${dia.total}</span>
+                </div>
+                <div class="history-details">
+                    <p style="margin:0 0 5px 0; font-weight:bold;">Relatório Individual:</p>
+                    ${detalhesHtml}
+                    <p style="font-size:0.7rem; color:#999; margin-top:5px; text-align:right;">(Clique para fechar)</p>
+                </div>
+            `;
+            histContainer.appendChild(item);
+        });
+
+        salvar();
+    }
+
+    function adicionarEntregador() {
+        const input = document.getElementById('novo-nome');
+        if (input.value.trim() === "") return;
+        entregadores.push({ id: Date.now(), nome: input.value, entregas: 0 });
+        input.value = "";
+        renderizar();
+    }
+
+    function removerEntregador(id) {
+        if(confirm("Deseja realmente excluir este entregador da lista?")) {
+            entregadores = entregadores.filter(e => e.id !== id);
+            renderizar();
+        }
+    }
+
+    function ajustar(id, val) {
+        const e = entregadores.find(x => x.id === id);
+        if(e && e.entregas + val >= 0) {
+            e.entregas += val;
+            renderizar();
+        }
+    }
+
+    function encerrarDia() {
+        const total = entregadores.reduce((s, e) => s + e.entregas, 0);
+        if(total === 0) return alert("Não há entregas para registrar!");
+
+        if(confirm(`Deseja salvar o fechamento de ${total} pizzas e zerar os contadores?`)) {
+            const agora = new Date();
+            const dataStr = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+            // Salva o relatório de cada entregador no histórico
+            const snapshot = entregadores.map(e => ({ nome: e.nome, qtd: e.entregas }));
+
+            historico.push({
+                data: dataStr,
+                total: total,
+                detalhes: snapshot
+            });
+
+            // Zera apenas as entregas, mantém os nomes
+            entregadores.forEach(e => e.entregas = 0);
+            renderizar();
+        }
+    }
+
+    function limparHistorico() {
+        if(confirm("Isso apagará permanentemente todos os relatórios salvos. Continuar?")) {
+            historico = [];
+            renderizar();
+        }
+    }
+
+    renderizar();
+</script>
+
+</body>
+</html>
