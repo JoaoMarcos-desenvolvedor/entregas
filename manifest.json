@@ -1,0 +1,15 @@
+{
+  "name": "Pizzaria Gestão Total",
+  "short_name": "PizzaGestão",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#e74c3c",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3595/3595455.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
