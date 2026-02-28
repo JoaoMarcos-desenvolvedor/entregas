@@ -15,7 +15,7 @@
             --accent-yellow: #f1c40f;
         }
 
-        /* Reset para Mobile */
+        /* Reset e Base Responsiva */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body { 
@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
         
-        /* Tela de Login Responsiva */
+        /* Tela de Login */
         #tela-login {
             display: flex;
             flex-direction: column;
@@ -51,9 +51,10 @@
             width: 90%;
             max-width: 350px;
             text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
-        /* Container Principal Adaptável */
+        /* Container Principal */
         #app-content { display: none; width: 100%; max-width: 480px; }
 
         .container, .history-container { 
@@ -70,28 +71,27 @@
         .total-painel { 
             background: var(--dark-blue); color: white; border-radius: 15px; 
             padding: 20px; text-align: center; margin-bottom: 20px; 
+            border-bottom: 4px solid var(--accent-yellow);
         }
         .total-painel div { font-size: 2.5rem; font-weight: 900; color: var(--accent-yellow); }
 
-        /* Input de Adição Otimizado */
         .add-section { display: flex; gap: 10px; margin-bottom: 20px; }
         .add-section input { 
             flex: 1; padding: 12px; border: 2px solid #eee; 
-            border-radius: 12px; font-size: 16px; /* Evita zoom automático no iOS */
+            border-radius: 12px; font-size: 16px;
         }
         
-        /* Cards de Entregadores para Polegar */
+        /* Cards de Entregadores */
         .delivery-card { 
             background: #fff; padding: 15px; border-radius: 15px; 
             margin-bottom: 12px; display: flex; justify-content: space-between; 
             align-items: center; border: 1px solid #f0f0f0; 
         }
 
-        .btn { border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; }
+        .btn { border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
         
-        /* Botões Maiores para Mobile */
         .btn-circle { 
-            width: 45px; height: 45px; /* Tamanho ideal para toque */
+            width: 45px; height: 45px; 
             font-size: 1.5rem; display: inline-flex; align-items: center; justify-content: center; 
         }
 
@@ -101,23 +101,31 @@
             box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
         }
 
+        /* Histórico */
         .history-item { 
             background: #fdfdfd; padding: 15px; border-radius: 12px; margin-bottom: 10px; 
             border-left: 6px solid var(--dark-blue);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         
-        .history-details { margin-top: 10px; font-size: 0.9rem; }
-        .detail-line { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
+        .history-details { margin-top: 10px; font-size: 0.9rem; border-top: 1px solid #eee; padding-top: 10px; }
+        .detail-line { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f9f9f9; }
+
+        .btn-clear-history {
+            background: none; border: 1px solid #ccc; color: #999;
+            width: 100%; padding: 10px; margin-top: 10px;
+            border-radius: 10px; font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
 
 <div id="tela-login">
     <div class="login-box">
-        <h2>🍕 Pizzaria Login</h2>
-        <input type="text" id="user" placeholder="Usuário" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd;">
-        <input type="password" id="pass" placeholder="Senha" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd;">
-        <button class="btn" onclick="autenticar()" style="background:var(--primary-red); width:100%; padding:15px; margin-top:10px; border-radius:10px;">Entrar</button>
+        <h2 style="margin-top:0">🍕 Pizzaria Login</h2>
+        <input type="text" id="user" placeholder="Usuário" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd; font-size:16px;">
+        <input type="password" id="pass" placeholder="Senha" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd; font-size:16px;">
+        <button class="btn" onclick="autenticar()" style="background:var(--primary-red); width:100%; padding:15px; margin-top:10px; border-radius:10px; font-size:1rem;">Entrar</button>
     </div>
 </div>
 
@@ -132,31 +140,34 @@
 
         <div class="add-section">
             <input type="text" id="novo-nome" placeholder="Nome do Motoboy">
-            <button class="btn" onclick="adicionarEntregador()" style="background:var(--dark-blue); padding:0 20px; border-radius:12px;">+</button>
+            <button class="btn" onclick="adicionarEntregador()" style="background:var(--dark-blue); padding:0 20px; border-radius:12px; font-size:1.5rem;">+</button>
         </div>
 
         <div id="lista-entregadores"></div>
         
         <button class="btn btn-finish" onclick="encerrarDia()">✅ Fechar Expediente</button>
-        <p onclick="logout()" style="text-align:center; color:#999; margin-top:20px; font-size:0.8rem; text-decoration:underline;">Sair do sistema</p>
+        <p onclick="logout()" style="text-align:center; color:#999; margin-top:20px; font-size:0.8rem; text-decoration:underline; cursor:pointer">Sair do sistema</p>
     </div>
 
     <div class="history-container">
         <h3>📊 Últimos Fechamentos</h3>
         <div id="lista-historico"></div>
+        <button id="btn-limpar" class="btn-clear-history" onclick="limparHistorico()" style="display:none;">🗑️ Limpar tudo o histórico</button>
     </div>
 </div>
 
 <script>
-    // Configurações de Login
+    // --- SEGURANÇA ---
     const LOGIN_PADRAO = "admin";
     const SENHA_PADRAO = "1234";
 
     function autenticar() {
-        if(document.getElementById('user').value === LOGIN_PADRAO && document.getElementById('pass').value === SENHA_PADRAO) {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u === LOGIN_PADRAO && p === SENHA_PADRAO) {
             sessionStorage.setItem('sessao_ativa', 'true');
             verificarSessao();
-        } else { alert("Acesso negado!"); }
+        } else { alert("Usuário ou senha incorretos!"); }
     }
 
     function verificarSessao() {
@@ -169,27 +180,29 @@
 
     function logout() { sessionStorage.removeItem('sessao_ativa'); location.reload(); }
 
-    // Lógica do App
+    // --- LÓGICA DO APP ---
     let entregadores = JSON.parse(localStorage.getItem('pizzaria_entregadores')) || [];
     let historico = JSON.parse(localStorage.getItem('pizzaria_historico')) || [];
 
     function renderizar() {
         const container = document.getElementById('lista-entregadores');
         const histContainer = document.getElementById('lista-historico');
+        const btnLimpar = document.getElementById('btn-limpar');
         let totalGeral = 0;
 
-        container.innerHTML = entregadores.length === 0 ? '<p style="text-align:center; color:#999;">Lista vazia</p>' : '';
+        // Entregadores Ativos
+        container.innerHTML = entregadores.length === 0 ? '<p style="text-align:center; color:#999;">Nenhum motoboy na lista.</p>' : '';
         entregadores.forEach(e => {
             totalGeral += e.entregas;
             const div = document.createElement('div');
             div.className = 'delivery-card';
             div.innerHTML = `
                 <div>
-                    <strong style="display:block">${e.nome}</strong>
-                    <small style="color:red" onclick="removerEntregador(${e.id})">Remover</small>
+                    <strong style="display:block; font-size:1.1rem">${e.nome}</strong>
+                    <small style="color:red; cursor:pointer" onclick="removerEntregador(${e.id})">Remover</small>
                 </div>
                 <div style="display:flex; align-items:center; gap:15px">
-                    <span style="font-size:1.5rem; font-weight:bold">${e.entregas}</span>
+                    <span style="font-size:1.5rem; font-weight:bold; color:var(--dark-blue)">${e.entregas}</span>
                     <div style="display:flex; gap:8px">
                         <button class="btn btn-circle" style="background:var(--primary-red)" onclick="ajustar(${e.id}, -1)">-</button>
                         <button class="btn btn-circle" style="background:var(--secondary-green)" onclick="ajustar(${e.id}, 1)">+</button>
@@ -200,37 +213,57 @@
         });
         document.getElementById('display-realtime').innerText = totalGeral;
 
+        // Histórico com Exclusão Individual
         histContainer.innerHTML = '';
-        historico.slice(-5).reverse().forEach(dia => {
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            item.onclick = () => {
-                const details = item.querySelector('.history-details');
-                details.style.display = details.style.display === 'none' ? 'block' : 'none';
-            };
-            item.innerHTML = `
-                <div style="display:flex; justify-content:space-between">
-                    <span>📅 ${dia.data.split(' ')[0]}</span>
-                    <strong>Total: ${dia.total}</strong>
-                </div>
-                <div class="history-details" style="display:none">
-                    ${dia.detalhes.map(d => `<div class="detail-line"><span>${d.nome}</span><span>${d.qtd}</span></div>`).join('')}
-                </div>
-            `;
-            histContainer.appendChild(item);
-        });
+        if(historico.length > 0) {
+            btnLimpar.style.display = 'block';
+            historico.slice().reverse().forEach((dia, idxInvertido) => {
+                const idxOriginal = historico.length - 1 - idxInvertido;
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center">
+                        <div onclick="toggleDetalhes(this)" style="flex:1; cursor:pointer">
+                            <span style="font-size:0.9rem">📅 ${dia.data}</span><br>
+                            <strong style="color:var(--secondary-green)">Total: ${dia.total}</strong>
+                        </div>
+                        <button onclick="removerItemHistorico(${idxOriginal})" 
+                                style="background:none; border:none; color:#e74c3c; font-size:1.3rem; padding:10px; cursor:pointer">🗑️</button>
+                    </div>
+                    <div class="history-details" style="display:none">
+                        ${dia.detalhes.map(d => `<div class="detail-line"><span>${d.nome}</span><strong>${d.qtd}</strong></div>`).join('')}
+                    </div>
+                `;
+                histContainer.appendChild(item);
+            });
+        } else {
+            btnLimpar.style.display = 'none';
+            histContainer.innerHTML = '<p style="text-align:center; color:#999;">Nenhum fechamento salvo.</p>';
+        }
+
         localStorage.setItem('pizzaria_entregadores', JSON.stringify(entregadores));
         localStorage.setItem('pizzaria_historico', JSON.stringify(historico));
+    }
+
+    function toggleDetalhes(divHeader) {
+        const details = divHeader.parentElement.nextElementSibling;
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
     }
 
     function adicionarEntregador() {
         const input = document.getElementById('novo-nome');
         if (!input.value.trim()) return;
         entregadores.push({ id: Date.now(), nome: input.value, entregas: 0 });
-        input.value = ""; renderizar();
+        input.value = ""; 
+        renderizar();
     }
 
-    function removerEntregador(id) { if(confirm("Excluir?")) { entregadores = entregadores.filter(e => e.id !== id); renderizar(); } }
+    function removerEntregador(id) { 
+        if(confirm("Remover este motoboy da lista fixa?")) { 
+            entregadores = entregadores.filter(e => e.id !== id); 
+            renderizar(); 
+        } 
+    }
 
     function ajustar(id, val) {
         const e = entregadores.find(x => x.id === id);
@@ -239,9 +272,11 @@
 
     function encerrarDia() {
         const total = entregadores.reduce((s, e) => s + e.entregas, 0);
-        if(total === 0 || !confirm(`Fechar com ${total} pizzas?`)) return;
+        if(total === 0) return alert("Não há entregas para registrar!");
+        if(!confirm(`Deseja fechar o expediente com ${total} pizzas?`)) return;
+        
         historico.push({ 
-            data: new Date().toLocaleString('pt-BR'), 
+            data: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }), 
             total, 
             detalhes: entregadores.map(e => ({ nome: e.nome, qtd: e.entregas })) 
         });
@@ -249,6 +284,21 @@
         renderizar();
     }
 
+    function removerItemHistorico(index) {
+        if(confirm("Excluir apenas este registro de fechamento?")) {
+            historico.splice(index, 1);
+            renderizar();
+        }
+    }
+
+    function limparHistorico() {
+        if(confirm("ATENÇÃO: Deseja apagar TODO o histórico permanentemente?")) {
+            historico = [];
+            renderizar();
+        }
+    }
+
+    // Iniciar verificação
     verificarSessao();
 </script>
 </body>
