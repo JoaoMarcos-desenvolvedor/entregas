@@ -24,7 +24,7 @@
             overflow-x: hidden;
         }
 
-        /* --- FUNDO ANIMADO (PARTÍCULAS) --- */
+        /* --- FUNDO ANIMADO --- */
         #background-animation {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
             background: linear-gradient(-45deg, #f4f7f6, #e7ebf0, #f4f7f6, #d9e2ec);
@@ -71,13 +71,17 @@
         
         .btn-primary { background: var(--primary-red); color: white; border: none; padding: 15px 20px; border-radius: 15px; font-weight: bold; cursor: pointer; }
         
-        /* BOTÃO VERDE DE ADICIONAR */
+        /* BOTÃO VERDE DE ADICIONAR (SOLICITADO) */
         .btn-add-green { background: var(--secondary-green); color: white; border: none; padding: 0 20px; border-radius: 15px; font-size: 1.8rem; cursor: pointer; }
 
         /* --- CARDS --- */
         .item-card { background: #fff; padding: 18px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #f0f0f0; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .flex-row { display: flex; justify-content: space-between; align-items: center; }
         .details-box { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd; font-size: 0.9rem; color: #666; line-height: 1.5; }
+
+        /* Estilo para a lista expandida do histórico */
+        .history-details-list { margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; font-size: 0.9rem; }
+        .history-details-row { display: flex; justify-content: space-between; padding: 4px 0; color: #555; }
     </style>
 </head>
 <body>
@@ -152,7 +156,7 @@
 </div>
 
 <script>
-    // --- FUNDO ANIMADO (REINCLUÍDO) ---
+    // Partículas
     function criarParticulas() {
         const bg = document.getElementById('background-animation');
         const emojis = ['🍕', '🛵', '🕒'];
@@ -166,9 +170,8 @@
         setTimeout(() => p.remove(), d * 1000);
     }
     setInterval(criarParticulas, 2000);
-    for(let i=0; i<10; i++) setTimeout(criarParticulas, i * 300);
 
-    // --- NAVEGAÇÃO ---
+    // Navegação
     function abrirTela(id) {
         document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
         document.getElementById('tela-login').style.display = 'none';
@@ -185,11 +188,12 @@
 
     function logout() { sessionStorage.clear(); location.reload(); }
 
-    // --- LOGICA ---
+    // Dados
     let motoboys = JSON.parse(localStorage.getItem('p_m')) || [];
     let historico = JSON.parse(localStorage.getItem('p_h')) || [];
     let equipe = JSON.parse(localStorage.getItem('p_e')) || [];
 
+    // Lógica Entregas
     function adicionarMotoboy() {
         const i = document.getElementById('nome-motoboy');
         if(!i.value.trim()) return;
@@ -222,11 +226,26 @@
         const hDiv = document.getElementById('lista-historico');
         hDiv.innerHTML = "";
         document.getElementById('btn-limpar-tudo').style.display = historico.length ? 'block' : 'none';
+        
         historico.slice().reverse().forEach((h, i) => {
             const idx = historico.length - 1 - i;
             const div = document.createElement('div');
-            div.style = "padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center";
-            div.innerHTML = `<span>📅 ${h.data} | <b>Total: ${h.total}</b></span> <span onclick="delH(${idx})" style="cursor:pointer">🗑️</span>`;
+            div.className = 'history-item';
+            div.style = "cursor:pointer;";
+            
+            // Aqui está a mágica: mostramos o total e os detalhes ao clicar
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center" onclick="toggleH(this)">
+                    <span>📅 ${h.data} | <b>Total: ${h.total}</b></span>
+                    <span onclick="event.stopPropagation(); delH(${idx})">🗑️</span>
+                </div>
+                <div class="history-details-list" style="display:none">
+                    ${h.detalhes ? h.detalhes.map(det => `
+                        <div class="history-details-row">
+                            <span>${det.nome}</span>
+                            <b>${det.qtd}</b>
+                        </div>`).join('') : '<p>Sem detalhes.</p>'}
+                </div>`;
             hDiv.appendChild(div);
         });
         localStorage.setItem('p_m', JSON.stringify(motoboys));
@@ -236,15 +255,27 @@
     function fecharExpediente() {
         const t = motoboys.reduce((s, m) => s + m.qtd, 0);
         if(t > 0 && confirm("Fechar dia?")) {
-            historico.push({ data: new Date().toLocaleString('pt-BR', {dateStyle: 'short', timeStyle: 'short'}), total: t });
-            motoboys.forEach(m => m.qtd = 0); renderEntregas();
+            historico.push({ 
+                data: new Date().toLocaleString('pt-BR', {dateStyle: 'short', timeStyle: 'short'}), 
+                total: t,
+                // Salvamos os detalhes de cada um no momento do fechamento
+                detalhes: motoboys.map(m => ({ nome: m.nome, qtd: m.qtd }))
+            });
+            motoboys.forEach(m => m.qtd = 0); 
+            renderEntregas();
         }
     }
-    function removerM(id) { if(confirm("Remover da lista?")) { motoboys = motoboys.filter(x => x.id !== id); renderEntregas(); } }
+
+    function toggleH(el) {
+        const details = el.nextElementSibling;
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+    }
+
     function delH(i) { if(confirm("Apagar este fechamento?")) { historico.splice(i, 1); renderEntregas(); } }
     function limparHistorico() { if(confirm("Limpar TODO o histórico?")) { historico = []; renderEntregas(); } }
+    function removerM(id) { if(confirm("Remover da lista?")) { motoboys = motoboys.filter(x => x.id !== id); renderEntregas(); } }
 
-    // --- EQUIPE ---
+    // Equipe
     function adicionarFuncionario() {
         const n = document.getElementById('f-nome').value;
         const i = document.getElementById('f-idade').value;
