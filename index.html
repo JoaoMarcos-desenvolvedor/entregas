@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pizzaria - Sistema Integrado</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#e74c3c">
+    <title>Pizzaria - Sistema Gestão Total</title>
     <style>
         :root {
             --primary-red: #e74c3c;
@@ -22,11 +20,11 @@
             font-family: 'Segoe UI', system-ui, sans-serif; 
             margin: 0; min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; 
-            padding: 15px; overflow-x: hidden;
-            background-color: var(--bg-gray); position: relative;
+            padding: 15px; background-color: var(--bg-gray); position: relative;
+            overflow-x: hidden;
         }
 
-        /* --- FUNDO ANIMADO --- */
+        /* --- FUNDO ANIMADO (PARTÍCULAS) --- */
         #background-animation {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
             background: linear-gradient(-45deg, #f4f7f6, #e7ebf0, #f4f7f6, #d9e2ec);
@@ -34,7 +32,10 @@
         }
         @keyframes gradientBG { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 
-        .particle { position: absolute; top: -50px; user-select: none; pointer-events: none; animation: fall linear infinite; opacity: 0.1; color: #bdc3c7; font-size: 24px; }
+        .particle {
+            position: absolute; top: -50px; user-select: none; pointer-events: none;
+            animation: fall linear infinite; opacity: 0.15; color: #bdc3c7; font-size: 24px;
+        }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
         /* --- TELAS --- */
@@ -51,42 +52,39 @@
             background: white; padding: 40px 35px; border-radius: 30px; width: 90%; max-width: 360px; text-align: center;
             animation: fadeInUp 0.8s ease-out, float 4s ease-in-out infinite;
         }
-        /* Ajuste de Título e Espaçamento entre inputs */
-        .login-box h2 { margin-bottom: 25px; color: var(--dark-blue); font-size: 1.8rem; }
-        .login-box input {
-            width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 15px; border: 2px solid #eee; outline: none; font-size: 16px;
-        }
+        .login-box h2 { margin-bottom: 30px; color: var(--dark-blue); font-size: 1.8rem; }
+        .login-box input { width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 15px; border: 2px solid #eee; outline: none; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         /* --- MENU --- */
         .menu-card { background: white; padding: 40px 30px; border-radius: 25px; text-align: center; margin-top: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .menu-card h2 { margin-bottom: 30px; }
-        .btn-menu {
-            width: 100%; padding: 25px; margin: 15px 0; border-radius: 20px; border: none;
-            font-size: 1.1rem; font-weight: bold; color: white; cursor: pointer; transition: 0.3s;
-        }
+        .menu-card h2 { margin-bottom: 35px; color: var(--dark-blue); }
+        .btn-menu { width: 100%; padding: 22px; margin: 12px 0; border-radius: 20px; border: none; font-size: 1.1rem; font-weight: bold; color: white; cursor: pointer; transition: 0.3s; }
 
-        /* --- GERAL --- */
-        .container { background: white; padding: 30px 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        /* --- FORMULÁRIOS E CONTAINERS --- */
+        .container { background: white; padding: 30px 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; }
         h2, h3 { margin-bottom: 25px; color: var(--dark-blue); text-align: center; }
         
-        .total-painel { background: var(--dark-blue); color: white; padding: 25px; border-radius: 20px; text-align: center; margin-bottom: 25px; border-bottom: 5px solid var(--accent-yellow); }
         .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .input-group input { flex: 1; padding: 15px; border-radius: 15px; border: 2px solid #eee; outline: none; font-size: 16px; }
-        .btn-primary { background: var(--primary-red); color: white; border: none; padding: 15px 25px; border-radius: 15px; font-weight: bold; cursor: pointer; }
-        .btn-circle { width: 45px; height: 45px; border-radius: 12px; border: none; color: white; font-size: 1.4rem; cursor: pointer; }
+        input, select, textarea { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #eee; outline: none; font-size: 15px; margin-bottom: 12px; }
+        
+        .btn-primary { background: var(--primary-red); color: white; border: none; padding: 15px 20px; border-radius: 15px; font-weight: bold; cursor: pointer; }
+        
+        /* BOTÃO VERDE DE ADICIONAR */
+        .btn-add-green { background: var(--secondary-green); color: white; border: none; padding: 0 20px; border-radius: 15px; font-size: 1.8rem; cursor: pointer; }
 
         /* --- CARDS --- */
-        .item-card { background: #fff; padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f0f0f0; }
-        .history-item { background: #fdfdfd; padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 6px solid var(--dark-blue); }
+        .item-card { background: #fff; padding: 18px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #f0f0f0; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .flex-row { display: flex; justify-content: space-between; align-items: center; }
+        .details-box { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd; font-size: 0.9rem; color: #666; line-height: 1.5; }
     </style>
 </head>
 <body>
 
 <div id="background-animation"></div>
 
-<div id="tela-login" style="display: flex;">
+<div id="tela-login">
     <div class="login-box">
         <h2>🍕 Pizza Admin</h2>
         <input type="text" id="user" placeholder="Usuário">
@@ -97,49 +95,80 @@
 
 <div id="tela-menu" class="page">
     <div class="menu-card">
-        <h2>Menu Principal</h2>
+        <h2>Painel Principal</h2>
         <button class="btn-menu" style="background: var(--primary-red);" onclick="abrirTela('tela-entregas')">🛵 Gestão de Entregas</button>
-        <button class="btn-menu" style="background: var(--dark-blue);" onclick="abrirTela('tela-funcionarios')">👥 Funcionários</button>
-        <p onclick="logout()" style="margin-top:20px; color:#bbb; cursor:pointer; text-decoration: underline;">Sair do Sistema</p>
+        <button class="btn-menu" style="background: var(--dark-blue);" onclick="abrirTela('tela-funcionarios')">👥 Equipe & Cargos</button>
+        <p onclick="logout()" style="margin-top:25px; color:#bbb; cursor:pointer; text-decoration: underline;">Sair do Sistema</p>
     </div>
 </div>
 
 <div id="tela-entregas" class="page">
-    <button onclick="abrirTela('tela-menu')" style="background:none; border:none; color:#999; margin-bottom:15px; cursor:pointer;">← Voltar ao Menu</button>
+    <button onclick="abrirTela('tela-menu')" style="background:none; border:none; color:#999; margin-bottom:20px; cursor:pointer;">← Voltar</button>
     <div class="container">
-        <h2>🛵 Controle de Entregas</h2>
-        <div class="total-painel">
+        <h2>🛵 Entregas do Dia</h2>
+        <div style="background:var(--dark-blue); color:white; padding:25px; border-radius:20px; text-align:center; margin-bottom:25px; border-bottom: 5px solid var(--accent-yellow);">
             <small>PIZZAS HOJE</small>
-            <div id="total-hoje" style="font-size: 2.8rem; font-weight: 900; color: var(--accent-yellow);">0</div>
+            <div id="total-hoje" style="font-size: 3rem; font-weight: 900; color: var(--accent-yellow);">0</div>
         </div>
         <div class="input-group">
-            <input type="text" id="nome-motoboy" placeholder="Nome do Motoboy">
-            <button class="btn-primary" onclick="adicionarMotoboy()" style="background: var(--secondary-green);">+</button>
+            <input type="text" id="nome-motoboy" placeholder="Nome do Motoboy" style="margin-bottom:0">
+            <button class="btn-add-green" onclick="adicionarMotoboy()">+</button>
         </div>
         <div id="lista-entregadores"></div>
-        <button class="btn-primary" style="background: var(--secondary-green); width: 100%; padding: 20px;" onclick="fecharExpediente()">✅ Fechar Expediente</button>
+        <button class="btn-primary" style="background: var(--secondary-green); width: 100%; padding: 20px; margin-top:10px" onclick="fecharExpediente()">✅ Fechar Expediente</button>
     </div>
-    
     <div class="container">
-        <h3>📊 Últimos Fechamentos</h3>
+        <h3>📊 Histórico</h3>
         <div id="lista-historico"></div>
-        <button id="btn-limpar-tudo" onclick="limparHistorico()" style="background:none; border:1px solid #ddd; color:#bbb; width:100%; padding:12px; margin-top:15px; border-radius:12px; font-size:0.8rem; display:none; cursor:pointer">🗑️ Limpar todo o histórico</button>
+        <button id="btn-limpar-tudo" onclick="limparHistorico()" style="display:none; background:none; border:1px solid #ddd; color:#bbb; width:100%; padding:12px; margin-top:15px; border-radius:12px; cursor:pointer">🗑️ Limpar Tudo</button>
     </div>
 </div>
 
 <div id="tela-funcionarios" class="page">
-    <button onclick="abrirTela('tela-menu')" style="background:none; border:none; color:#999; margin-bottom:15px; cursor:pointer;">← Voltar ao Menu</button>
+    <button onclick="abrirTela('tela-menu')" style="background:none; border:none; color:#999; margin-bottom:20px; cursor:pointer;">← Voltar</button>
     <div class="container">
-        <h2>👥 Equipe da Pizzaria</h2>
-        <div class="input-group">
-            <input type="text" id="nome-func" placeholder="Nome do Funcionário">
-            <button class="btn-primary" onclick="adicionarFuncionario()">Cadastrar</button>
+        <h2>👥 Cadastro de Equipe</h2>
+        <input type="text" id="f-nome" placeholder="Nome Completo">
+        <div style="display:flex; gap:10px">
+            <input type="number" id="f-idade" placeholder="Idade" style="flex:0.5">
+            <select id="f-genero" style="flex:1">
+                <option value="">Gênero</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Outro">Outro</option>
+            </select>
         </div>
-        <div id="lista-equipe"></div>
+        <select id="f-cargo">
+            <option value="Pizzaiolo">Pizzaiolo</option>
+            <option value="Atendente">Atendente</option>
+            <option value="Motoboy">Motoboy</option>
+            <option value="Gerente">Gerente</option>
+            <option value="Auxiliar de Cozinha">Auxiliar de Cozinha</option>
+        </select>
+        <textarea id="f-desc" placeholder="Breve descrição do funcionário..." rows="3"></textarea>
+        <button class="btn-primary" style="width:100%; background:var(--secondary-green)" onclick="adicionarFuncionario()">Salvar Funcionário</button>
     </div>
+    <div id="lista-equipe" style="width:100%"></div>
 </div>
 
 <script>
+    // --- FUNDO ANIMADO (REINCLUÍDO) ---
+    function criarParticulas() {
+        const bg = document.getElementById('background-animation');
+        const emojis = ['🍕', '🛵', '🕒'];
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        p.style.left = Math.random() * 100 + 'vw';
+        const d = Math.random() * 8 + 10;
+        p.style.animationDuration = d + 's';
+        bg.appendChild(p);
+        setTimeout(() => p.remove(), d * 1000);
+    }
+    setInterval(criarParticulas, 2000);
+    for(let i=0; i<10; i++) setTimeout(criarParticulas, i * 300);
+
+    // --- NAVEGAÇÃO ---
     function abrirTela(id) {
         document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
         document.getElementById('tela-login').style.display = 'none';
@@ -150,16 +179,16 @@
 
     function autenticar() {
         if(document.getElementById('user').value === "admin" && document.getElementById('pass').value === "1234") {
-            sessionStorage.setItem('pizza_auth', 'true');
-            abrirTela('tela-menu');
-        } else { alert("Acesso Negado!"); }
+            sessionStorage.setItem('pizza_auth', 'true'); abrirTela('tela-menu');
+        } else { alert("Acesso negado"); }
     }
 
     function logout() { sessionStorage.clear(); location.reload(); }
 
-    let motoboys = JSON.parse(localStorage.getItem('pizza_motoboys')) || [];
-    let historico = JSON.parse(localStorage.getItem('pizza_hist')) || [];
-    let equipe = JSON.parse(localStorage.getItem('pizza_equipe')) || [];
+    // --- LOGICA ---
+    let motoboys = JSON.parse(localStorage.getItem('p_m')) || [];
+    let historico = JSON.parse(localStorage.getItem('p_h')) || [];
+    let equipe = JSON.parse(localStorage.getItem('p_e')) || [];
 
     function adicionarMotoboy() {
         const i = document.getElementById('nome-motoboy');
@@ -174,99 +203,87 @@
     }
 
     function renderEntregas() {
-        const container = document.getElementById('lista-entregadores');
-        let total = 0; container.innerHTML = "";
+        const cont = document.getElementById('lista-entregadores');
+        let t = 0; cont.innerHTML = "";
         motoboys.forEach(m => {
-            total += m.qtd;
-            const div = document.createElement('div');
-            div.className = 'item-card';
-            div.innerHTML = `
-                <div><b>${m.nome}</b><br><small style="color:red; cursor:pointer" onclick="removerMotoboy(${m.id})">Remover</small></div>
-                <div style="display:flex; align-items:center; gap:10px">
-                    <span style="font-size:1.4rem; font-weight:bold">${m.qtd}</span>
-                    <button class="btn-circle" style="background:var(--primary-red)" onclick="ajustar(${m.id},-1)">-</button>
-                    <button class="btn-circle" style="background:var(--secondary-green)" onclick="ajustar(${m.id},1)">+</button>
+            t += m.qtd;
+            const d = document.createElement('div');
+            d.className = 'item-card flex-row';
+            d.innerHTML = `<div><b>${m.nome}</b><br><small style="color:red; cursor:pointer" onclick="removerM(${m.id})">Remover</small></div>
+                <div style="display:flex; align-items:center; gap:12px">
+                    <span style="font-size:1.5rem; font-weight:bold">${m.qtd}</span>
+                    <button onclick="ajustar(${m.id},-1)" style="width:40px;height:40px;border-radius:10px;border:none;background:var(--primary-red);color:white">-</button>
+                    <button onclick="ajustar(${m.id},1)" style="width:40px;height:40px;border-radius:10px;border:none;background:var(--secondary-green);color:white">+</button>
                 </div>`;
-            container.appendChild(div);
+            cont.appendChild(d);
         });
-        document.getElementById('total-hoje').innerText = total;
+        document.getElementById('total-hoje').innerText = t;
         
-        const histDiv = document.getElementById('lista-historico');
-        const btnL = document.getElementById('btn-limpar-tudo');
-        histDiv.innerHTML = "";
-        
-        if(historico.length > 0) {
-            btnL.style.display = 'block';
-            historico.slice().reverse().forEach((h, idxInvertido) => {
-                const idxReal = historico.length - 1 - idxInvertido;
-                const d = document.createElement('div');
-                d.className = 'history-item';
-                d.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center">
-                        <div onclick="toggleH(this)" style="cursor:pointer; flex:1">
-                            📅 ${h.data} | <b>Total: ${h.total}</b>
-                        </div>
-                        <button onclick="deletarUm(${idxReal})" style="background:none; border:none; font-size:1.2rem; cursor:pointer">🗑️</button>
-                    </div>
-                    <div style="display:none; margin-top:10px; font-size:0.85rem; border-top:1px solid #eee; padding-top:10px">
-                        ${h.detalhes ? h.detalhes.map(det => `<div>${det.nome}: ${det.qtd}</div>`).join('') : ''}
-                    </div>`;
-                histDiv.appendChild(d);
-            });
-        } else { btnL.style.display = 'none'; histDiv.innerHTML = '<p style="text-align:center; color:#999">Nenhum histórico.</p>'; }
-
-        localStorage.setItem('pizza_motoboys', JSON.stringify(motoboys));
-        localStorage.setItem('pizza_hist', JSON.stringify(historico));
+        const hDiv = document.getElementById('lista-historico');
+        hDiv.innerHTML = "";
+        document.getElementById('btn-limpar-tudo').style.display = historico.length ? 'block' : 'none';
+        historico.slice().reverse().forEach((h, i) => {
+            const idx = historico.length - 1 - i;
+            const div = document.createElement('div');
+            div.style = "padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center";
+            div.innerHTML = `<span>📅 ${h.data} | <b>Total: ${h.total}</b></span> <span onclick="delH(${idx})" style="cursor:pointer">🗑️</span>`;
+            hDiv.appendChild(div);
+        });
+        localStorage.setItem('p_m', JSON.stringify(motoboys));
+        localStorage.setItem('p_h', JSON.stringify(historico));
     }
 
     function fecharExpediente() {
         const t = motoboys.reduce((s, m) => s + m.qtd, 0);
-        if(t === 0) return alert("Sem entregas!");
-        if(confirm("Encerrar dia?")) {
-            historico.push({ 
-                data: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }), 
-                total: t,
-                detalhes: motoboys.map(m => ({ nome: m.nome, qtd: m.qtd }))
-            });
-            motoboys.forEach(m => m.qtd = 0);
-            renderEntregas();
+        if(t > 0 && confirm("Fechar dia?")) {
+            historico.push({ data: new Date().toLocaleString('pt-BR', {dateStyle: 'short', timeStyle: 'short'}), total: t });
+            motoboys.forEach(m => m.qtd = 0); renderEntregas();
         }
     }
-
-    function toggleH(el) { const d = el.parentElement.nextElementSibling; d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
-    function deletarUm(i) { if(confirm("Excluir este fechamento?")) { historico.splice(i, 1); renderEntregas(); } }
+    function removerM(id) { if(confirm("Remover da lista?")) { motoboys = motoboys.filter(x => x.id !== id); renderEntregas(); } }
+    function delH(i) { if(confirm("Apagar este fechamento?")) { historico.splice(i, 1); renderEntregas(); } }
     function limparHistorico() { if(confirm("Limpar TODO o histórico?")) { historico = []; renderEntregas(); } }
-    function removerMotoboy(id) { if(confirm("Excluir da lista diária?")) { motoboys = motoboys.filter(m => m.id !== id); renderEntregas(); } }
 
+    // --- EQUIPE ---
     function adicionarFuncionario() {
-        const i = document.getElementById('nome-func');
-        if(!i.value.trim()) return;
-        equipe.push({ id: Date.now(), nome: i.value });
-        i.value = ""; renderFuncionarios();
+        const n = document.getElementById('f-nome').value;
+        const i = document.getElementById('f-idade').value;
+        const g = document.getElementById('f-genero').value;
+        const c = document.getElementById('f-cargo').value;
+        const d = document.getElementById('f-desc').value;
+        if(!n || !i) return alert("Preencha Nome e Idade");
+        equipe.push({ id: Date.now(), nome: n, idade: i, genero: g, cargo: c, desc: d });
+        ['f-nome', 'f-idade', 'f-genero', 'f-desc'].forEach(id => document.getElementById(id).value = "");
+        renderFuncionarios();
     }
 
     function renderFuncionarios() {
-        const container = document.getElementById('lista-equipe');
-        container.innerHTML = equipe.length === 0 ? '<p style="text-align:center; color:#999">Nenhum funcionário cadastrado.</p>' : '';
+        const cont = document.getElementById('lista-equipe');
+        cont.innerHTML = "";
         equipe.forEach(f => {
             const div = document.createElement('div');
             div.className = 'item-card';
-            div.innerHTML = `<span>${f.nome}</span><button onclick="removerFunc(${f.id})" style="background:none; border:none; color:red; cursor:pointer">Excluir</button>`;
-            container.appendChild(div);
+            div.innerHTML = `
+                <div class="flex-row" onclick="toggleDet(this)" style="cursor:pointer">
+                    <div><strong>${f.nome}</strong><br><small style="color:var(--primary-red); font-weight:bold">${f.cargo}</small></div>
+                    <button onclick="removerF(${f.id})" style="background:none; border:none; color:#ccc; cursor:pointer">Excluir</button>
+                </div>
+                <div class="details-box">
+                    <p><b>Idade:</b> ${f.idade} anos | <b>Gênero:</b> ${f.genero}</p>
+                    <p style="margin-top:5px"><b>Bio:</b> ${f.desc || 'Sem descrição.'}</p>
+                </div>`;
+            cont.appendChild(div);
         });
-        localStorage.setItem('pizza_equipe', JSON.stringify(equipe));
+        localStorage.setItem('p_e', JSON.stringify(equipe));
     }
-    function removerFunc(id) { if(confirm("Excluir funcionário?")) { equipe = equipe.filter(f => f.id !== id); renderFuncionarios(); } }
 
-    function criarP() {
-        const b = document.getElementById('background-animation');
-        const p = document.createElement('div');
-        p.className = 'particle'; p.innerText = ['🍕', '🛵', '🕒'][Math.floor(Math.random()*3)];
-        p.style.left = Math.random()*100+'vw';
-        const d = Math.random()*8+10; p.style.animationDuration = d+'s';
-        b.appendChild(p); setTimeout(() => p.remove(), d*1000);
+    function toggleDet(el) {
+        const d = el.nextElementSibling;
+        d.style.display = d.style.display === 'block' ? 'none' : 'block';
     }
-    setInterval(criarP, 2000);
+
+    function removerF(id) { if(confirm("Remover da equipe fixa?")) { equipe = equipe.filter(x => x.id !== id); renderFuncionarios(); } }
+
     if(sessionStorage.getItem('pizza_auth')) abrirTela('tela-menu');
 </script>
 </body>
